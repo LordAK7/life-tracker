@@ -1,26 +1,332 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Dark theme by default */
+  --background: #0f0f0f;
+  --card-bg: #1a1a1a;
+  --card-hover: #252525;
+  --text-primary: #f5f5f5;
+  --text-secondary: #a0a0a0;
+  --accent: #7c3aed; /* Purple accent */
+  --accent-hover: #6d28d9;
+  --accent-light: rgba(124, 58, 237, 0.1);
+  --border: #333333;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --folder-bg: #252525;
+  --folder-hover: #2d2d2d;
+  --input-bg: #252525;
+  --input-border: #333333;
+  --gray-100: #1a1a1a;
+  --gray-200: #252525;
+  --gray-300: #333333;
+  --gray-400: #4d4d4d;
+  --gray-500: #6b7280;
+  --gray-600: #9ca3af;
+  --gray-700: #d1d5db;
+  --gray-800: #e5e7eb;
+  --gray-900: #f3f4f6;
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+
+/* Remove focus outlines and replace with custom styling */
+* {
+  outline: none !important;
+}
+
+input:focus, textarea:focus, select:focus, button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Custom focus styles for inputs */
+input, textarea, select {
+  transition: border-color 0.2s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent) !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-in-out;
+}
+
+/* Custom checkbox styling */
+.custom-checkbox {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--gray-400);
+  transition: all 0.2s ease;
+}
+
+.custom-checkbox.checked {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.custom-checkbox.checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7'%3E%3C/path%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Custom folder styling */
+.folder {
+  background-color: var(--folder-bg);
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.folder:hover {
+  background-color: var(--folder-hover);
+}
+
+.folder.active {
+  background-color: var(--accent-light);
+  border-left: 3px solid var(--accent);
+}
+
+/* Custom input styling */
+.custom-input {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.2s ease;
+}
+
+.custom-input:focus {
+  border-color: var(--accent);
+}
+
+/* Task item hover effect */
+.task-item {
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.task-item:hover {
+  background-color: var(--card-hover);
+}
+
+/* Glassmorphism for modals */
+.glass-modal {
+  background: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Dark mode date picker styles */
+input[type="date"] {
+  position: relative;
+  color-scheme: dark;
+}
+
+/* Custom date picker styling */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'%3E%3C/path%3E%3C/svg%3E");
+  background-position: center;
+  background-size: 18px;
+  background-repeat: no-repeat;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  opacity: 0.6;
+  filter: invert(0.8);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* For Firefox */
+input[type="date"] {
+  appearance: none;
+  -moz-appearance: none;
+}
+
+/* Custom date display */
+.date-input-container {
+  position: relative;
+  width: 100%;
+}
+
+.date-input-container .date-display {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.date-input-container input[type="date"] {
+  padding-left: 12px;
+}
+
+.date-input-container input[type="date"]:valid + .date-placeholder,
+.date-input-container input[type="date"]:focus + .date-placeholder {
+  display: none;
+}
+
+.date-input-container .date-placeholder {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--gray-500);
+  font-size: 0.875rem;
+}
+
+/* Custom date picker modal styles */
+::-webkit-datetime-edit {
+  color: var(--text-primary);
+  padding: 0;
+}
+
+::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+::-webkit-datetime-edit-text {
+  color: var(--gray-500);
+  padding: 0 2px;
+}
+
+::-webkit-datetime-edit-month-field,
+::-webkit-datetime-edit-day-field,
+::-webkit-datetime-edit-year-field {
+  color: var(--text-primary);
+  padding: 0 2px;
+}
+
+::-webkit-inner-spin-button {
+  display: none;
+}
+
+/* Custom date picker button */
+.date-picker-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--input-border);
+  transition: border-color 0.2s ease;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.date-picker-button:hover {
+  border-color: var(--gray-400);
+}
+
+.date-picker-button:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.date-picker-button .calendar-icon {
+  color: var(--gray-500);
+  width: 18px;
+  height: 18px;
+}
+
+.date-picker-button .date-text {
+  color: var(--text-primary);
+}
+
+.date-picker-button .placeholder {
+  color: var(--gray-500);
+}
+
+/* Navigation bar styles */
+.nav-item {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+  color: var(--text-primary);
+}
+
+.nav-item.active {
+  color: var(--accent);
+}
+
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--accent);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .nav-item-text {
+    display: none;
+  }
 }
