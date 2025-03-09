@@ -1,13 +1,11 @@
 'use client';
 
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import { TimeSlot } from '@/types/schedule';
 import { format, parseISO, addMinutes, isSameDay } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
-
-// Lazy load DatePicker
-const DatePicker = lazy(() => import('react-datepicker'));
-import 'react-datepicker/dist/react-datepicker.css';
+import TimeSlotView from './schedule/TimeSlotView';
+import EventForm from './schedule/EventForm';
 
 interface DayScheduleViewProps {
   date: Date;
@@ -26,12 +24,10 @@ export default function DayScheduleView({
 }: DayScheduleViewProps) {
   const [isAddingEvent, setIsAddingEvent] = useState(false);
   const [editingEvent, setEditingEvent] = useState<TimeSlot | null>(null);
-  const [isClient, setIsClient] = useState(false);
   const [formattedDate, setFormattedDate] = useState('');
   
-  // Set isClient to true when component mounts and format date on client
+  // Format date on client side only
   useEffect(() => {
-    setIsClient(true);
     setFormattedDate(format(date, 'EEEE, MMMM d'));
   }, [date]);
   
@@ -45,21 +41,25 @@ export default function DayScheduleView({
     return new Date(a.start).getTime() - new Date(b.start).getTime();
   });
 
-  // Group events by time period
-  const morningEvents = sortedEvents.filter(event => {
-    const hour = new Date(event.start).getHours();
-    return hour >= 6 && hour < 12;
-  });
+  // Create time slots for the entire day (6 AM to 10 PM)
+  const timeSlots = [
+    { label: '06:00 - 08:00', start: 6, end: 8 },
+    { label: '08:00 - 10:00', start: 8, end: 10 },
+    { label: '10:00 - 12:00', start: 10, end: 12 },
+    { label: '12:00 - 14:00', start: 12, end: 14 },
+    { label: '14:00 - 16:00', start: 14, end: 16 },
+    { label: '16:00 - 18:00', start: 16, end: 18 },
+    { label: '18:00 - 20:00', start: 18, end: 20 },
+    { label: '20:00 - 22:00', start: 20, end: 22 },
+  ];
 
-  const afternoonEvents = sortedEvents.filter(event => {
-    const hour = new Date(event.start).getHours();
-    return hour >= 12 && hour < 17;
-  });
-
-  const eveningEvents = sortedEvents.filter(event => {
-    const hour = new Date(event.start).getHours();
-    return hour >= 17 && hour < 22;
-  });
+  // Function to get events for a specific time slot
+  const getEventsForTimeSlot = (startHour: number, endHour: number) => {
+    return sortedEvents.filter(event => {
+      const hour = new Date(event.start).getHours();
+      return hour >= startHour && hour < endHour;
+    });
+  };
 
   const formatTimeRange = (start: string, end: string) => {
     return `${format(parseISO(start), 'HH:mm')} - ${format(parseISO(end), 'HH:mm')}`;
@@ -87,26 +87,24 @@ export default function DayScheduleView({
     setIsAddingEvent(true);
   };
 
-  const handleSaveEvent = () => {
-    if (!editingEvent) return;
-    
-    if (editingEvent.id === 'new') {
+  const handleSaveEvent = (event: TimeSlot) => {
+    if (event.id === 'new') {
       onAddEvent({
-        title: editingEvent.title,
-        start: editingEvent.start,
-        end: editingEvent.end,
+        title: event.title,
+        start: event.start,
+        end: event.end,
         type: 'personal',
-        description: editingEvent.description,
-        color: editingEvent.color,
+        description: event.description,
+        color: event.color,
         editable: true
       });
     } else {
-      onUpdateEvent(editingEvent.id, {
-        title: editingEvent.title,
-        start: editingEvent.start,
-        end: editingEvent.end,
-        description: editingEvent.description,
-        color: editingEvent.color
+      onUpdateEvent(event.id, {
+        title: event.title,
+        start: event.start,
+        end: event.end,
+        description: event.description,
+        color: event.color
       });
     }
     
@@ -119,101 +117,19 @@ export default function DayScheduleView({
     setIsAddingEvent(false);
   };
 
-  const handleDeleteEvent = () => {
-    if (editingEvent && editingEvent.id !== 'new') {
-      onDeleteEvent(editingEvent.id);
+  const handleDeleteEvent = (id: string) => {
+    if (id !== 'new') {
+      onDeleteEvent(id);
       setEditingEvent(null);
       setIsAddingEvent(false);
     }
   };
 
-  // Loading skeleton
-  const EventSkeleton = () => (
-    <div className="animate-pulse space-y-6">
-      <div>
-        <div className="h-4 w-24 bg-[var(--gray-200)] rounded mb-2"></div>
-        <div className="space-y-2">
-          {[...Array(2)].map((_, i) => (
-            <div key={i} className="h-16 bg-[var(--gray-200)] rounded-lg"></div>
-          ))}
-        </div>
-      </div>
-      <div>
-        <div className="h-4 w-24 bg-[var(--gray-200)] rounded mb-2"></div>
-        <div className="space-y-2">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-16 bg-[var(--gray-200)] rounded-lg"></div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderEventGroup = (title: string, groupEvents: TimeSlot[]) => {
-    if (groupEvents.length === 0) return null;
-    
-    return (
-      <div className="mb-6">
-        <h3 className="text-sm font-medium text-[var(--gray-500)] uppercase tracking-wider mb-2">{title}</h3>
-        <div className="space-y-2">
-          {groupEvents.map(event => (
-            <motion.div
-              key={event.id}
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileHover={{ scale: 1.01 }}
-              transition={{ duration: 0.2 }}
-              className={`p-3 rounded-lg ${
-                event.type === 'college' 
-                  ? 'bg-[var(--gray-200)] border-l-4 border-indigo-500' 
-                  : 'bg-[var(--accent-light)] border-l-4 border-[var(--accent)]'
-              } cursor-pointer hover:shadow-md transition-all`}
-              onClick={() => {
-                if (event.type === 'personal') {
-                  setEditingEvent(event);
-                  setIsAddingEvent(true);
-                }
-              }}
-            >
-              <div className="flex justify-between items-start">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center">
-                    <h4 className="font-medium text-[var(--text-primary)] truncate">{event.title}</h4>
-                    {event.type === 'college' && (
-                      <span className="ml-2 px-1.5 py-0.5 text-xs rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">
-                        College
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-[var(--text-secondary)] mt-0.5">
-                    {formatTimeRange(event.start, event.end)}
-                  </p>
-                  {event.description && (
-                    <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-2">
-                      {event.description}
-                    </p>
-                  )}
-                </div>
-                {event.type === 'personal' && (
-                  <div className="text-[var(--gray-500)] hover:text-[var(--accent)] ml-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
   return (
-    <div className="bg-[var(--card-bg)] rounded-lg border border-[var(--border)] h-full">
+    <div className="bg-[var(--card-bg)] rounded-lg border border-[var(--border)] h-full flex flex-col">
       <div className="p-4 border-b border-[var(--border)] flex justify-between items-center">
         <h3 className="font-medium text-[var(--text-primary)]">
-          {isClient ? formattedDate : ''}
+          {formattedDate}
         </h3>
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -228,10 +144,8 @@ export default function DayScheduleView({
         </motion.button>
       </div>
       
-      <div className="p-4 max-h-[600px] overflow-y-auto custom-scrollbar">
-        {!isClient ? (
-          <EventSkeleton />
-        ) : sortedEvents.length === 0 ? (
+      <div className="p-4 overflow-y-auto h-[70vh] custom-scrollbar">
+        {sortedEvents.length === 0 ? (
           <div className="text-center py-8 text-[var(--text-secondary)]">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-3 text-[var(--gray-400)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -245,11 +159,33 @@ export default function DayScheduleView({
             </button>
           </div>
         ) : (
-          <>
-            {renderEventGroup('Morning', morningEvents)}
-            {renderEventGroup('Afternoon', afternoonEvents)}
-            {renderEventGroup('Evening', eveningEvents)}
-          </>
+          <div className="space-y-6">
+            {timeSlots.map((slot, index) => {
+              const slotEvents = getEventsForTimeSlot(slot.start, slot.end);
+              if (slotEvents.length === 0) return null;
+              
+              return (
+                <div key={index} className="mb-6">
+                  <h3 className="text-sm font-medium text-[var(--gray-500)] uppercase tracking-wider mb-2 sticky top-0 bg-[var(--card-bg)] py-1">
+                    {slot.label}
+                  </h3>
+                  <div className="space-y-2">
+                    {slotEvents.map(event => (
+                      <TimeSlotView 
+                        key={event.id}
+                        event={event}
+                        onEditEvent={(event) => {
+                          setEditingEvent(event);
+                          setIsAddingEvent(true);
+                        }}
+                        formatTimeRange={formatTimeRange}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
       
@@ -267,145 +203,12 @@ export default function DayScheduleView({
               exit={{ scale: 0.9, opacity: 0 }}
               className="bg-[var(--card-bg)] rounded-xl shadow-xl w-full max-w-md overflow-hidden"
             >
-              <div className="p-6">
-                <h2 className="text-xl font-medium mb-4">
-                  {editingEvent.id === 'new' ? 'Add Event' : 'Edit Event'}
-                </h2>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--gray-600)] mb-1">Title</label>
-                    <input
-                      type="text"
-                      value={editingEvent.title}
-                      onChange={(e) => setEditingEvent({ ...editingEvent, title: e.target.value })}
-                      className="w-full bg-[var(--input-bg)] text-[var(--text-primary)] px-3 py-2 rounded-lg border border-[var(--input-border)] focus:border-[var(--accent)]"
-                      placeholder="Event title"
-                      autoFocus
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--gray-600)] mb-1">Start Time</label>
-                      {isClient && (
-                        <Suspense fallback={<div className="h-10 bg-[var(--input-bg)] rounded-lg animate-pulse"></div>}>
-                          <DatePicker
-                            selected={parseISO(editingEvent.start)}
-                            onChange={(date) => {
-                              if (date) {
-                                setEditingEvent({
-                                  ...editingEvent,
-                                  start: date.toISOString(),
-                                  end: addMinutes(date, 60).toISOString()
-                                });
-                              }
-                            }}
-                            showTimeSelect
-                            showTimeSelectOnly
-                            timeIntervals={15}
-                            timeCaption="Time"
-                            dateFormat="HH:mm"
-                            className="w-full bg-[var(--input-bg)] text-[var(--text-primary)] px-3 py-2 rounded-lg border border-[var(--input-border)] focus:border-[var(--accent)]"
-                          />
-                        </Suspense>
-                      )}
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--gray-600)] mb-1">End Time</label>
-                      {isClient && (
-                        <Suspense fallback={<div className="h-10 bg-[var(--input-bg)] rounded-lg animate-pulse"></div>}>
-                          <DatePicker
-                            selected={parseISO(editingEvent.end)}
-                            onChange={(date) => {
-                              if (date) {
-                                setEditingEvent({
-                                  ...editingEvent,
-                                  end: date.toISOString()
-                                });
-                              }
-                            }}
-                            showTimeSelect
-                            showTimeSelectOnly
-                            timeIntervals={15}
-                            timeCaption="Time"
-                            dateFormat="HH:mm"
-                            className="w-full bg-[var(--input-bg)] text-[var(--text-primary)] px-3 py-2 rounded-lg border border-[var(--input-border)] focus:border-[var(--accent)]"
-                          />
-                        </Suspense>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--gray-600)] mb-1">Description (Optional)</label>
-                    <textarea
-                      value={editingEvent.description || ''}
-                      onChange={(e) => setEditingEvent({ ...editingEvent, description: e.target.value })}
-                      className="w-full bg-[var(--input-bg)] text-[var(--text-primary)] px-3 py-2 rounded-lg border border-[var(--input-border)] focus:border-[var(--accent)] min-h-[80px] resize-none"
-                      placeholder="Add a description..."
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--gray-600)] mb-1">Color</label>
-                    <div className="flex space-x-2">
-                      {['#7c3aed', '#ef4444', '#f59e0b', '#10b981', '#3b82f6'].map(color => (
-                        <motion.button
-                          key={color}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          type="button"
-                          onClick={() => setEditingEvent({ ...editingEvent, color })}
-                          className={`w-8 h-8 rounded-full ${
-                            editingEvent.color === color ? 'ring-2 ring-offset-2 ring-[var(--accent)]' : ''
-                          }`}
-                          style={{ backgroundColor: color }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex justify-between mt-6">
-                  <div>
-                    {editingEvent.id !== 'new' && (
-                      <motion.button
-                        whileHover={{ backgroundColor: 'rgba(239, 68, 68, 0.1)' }}
-                        whileTap={{ scale: 0.95 }}
-                        type="button"
-                        onClick={handleDeleteEvent}
-                        className="text-[var(--danger)] hover:text-[var(--danger)] px-3 py-1 rounded-lg transition-colors"
-                      >
-                        Delete
-                      </motion.button>
-                    )}
-                  </div>
-                  
-                  <div className="flex space-x-2">
-                    <motion.button
-                      whileHover={{ backgroundColor: 'var(--gray-300)' }}
-                      whileTap={{ scale: 0.95 }}
-                      type="button"
-                      onClick={handleCancelEdit}
-                      className="px-4 py-2 bg-[var(--gray-200)] text-[var(--gray-600)] hover:bg-[var(--gray-300)] rounded-lg transition-colors"
-                    >
-                      Cancel
-                    </motion.button>
-                    
-                    <motion.button
-                      whileHover={{ backgroundColor: 'var(--accent-hover)' }}
-                      whileTap={{ scale: 0.95 }}
-                      type="button"
-                      onClick={handleSaveEvent}
-                      className="px-4 py-2 bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] rounded-lg transition-colors"
-                    >
-                      {editingEvent.id === 'new' ? 'Add' : 'Save'}
-                    </motion.button>
-                  </div>
-                </div>
-              </div>
+              <EventForm
+                event={editingEvent}
+                onSave={handleSaveEvent}
+                onCancel={handleCancelEdit}
+                onDelete={handleDeleteEvent}
+              />
             </motion.div>
           </motion.div>
         )}
@@ -413,16 +216,17 @@ export default function DayScheduleView({
       
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
+          width: 10px;
         }
         
         .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
+          background: var(--gray-200);
+          border-radius: 5px;
         }
         
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background: var(--gray-400);
-          border-radius: 3px;
+          border-radius: 5px;
         }
         
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
