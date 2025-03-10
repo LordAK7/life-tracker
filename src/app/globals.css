@@ -1,29 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  /* Dark theme by default */
-  --background: #0f0f0f;
-  --card-bg: #1a1a1a;
-  --card-hover: #252525;
-  --text-primary: #f5f5f5;
+  /* Dark theme by default - with darker grays */
+  --background: #0a0a0a; /* Darker background */
+  --card-bg: #141414; /* Darker card background */
+  --card-hover: #1e1e1e; /* Darker hover state */
+  --text-primary: #f8f8f8; /* Slightly brighter text for better contrast */
   --text-secondary: #a0a0a0;
   --accent: #7c3aed; /* Purple accent */
   --accent-hover: #6d28d9;
-  --accent-light: rgba(124, 58, 237, 0.1);
-  --border: #333333;
+  --accent-light: rgba(124, 58, 237, 0.15); /* Slightly more visible accent light */
+  --border: #2a2a2a; /* Darker border */
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
-  --folder-bg: #252525;
-  --folder-hover: #2d2d2d;
-  --input-bg: #252525;
-  --input-border: #333333;
-  --gray-100: #1a1a1a;
-  --gray-200: #252525;
-  --gray-300: #333333;
-  --gray-400: #4d4d4d;
-  --gray-500: #6b7280;
-  --gray-600: #9ca3af;
+  --folder-bg: #1e1e1e; /* Darker folder background */
+  --folder-hover: #252525; /* Darker folder hover */
+  --input-bg: #1e1e1e; /* Darker input background */
+  --input-border: #2a2a2a; /* Darker input border */
+  --gray-100: #141414; /* Darker gray scale */
+  --gray-200: #1e1e1e;
+  --gray-300: #2a2a2a;
+  --gray-400: #3d3d3d;
+  --gray-500: #5a5a5a;
+  --gray-600: #8a8a8a;
   --gray-700: #d1d5db;
   --gray-800: #e5e7eb;
   --gray-900: #f3f4f6;
@@ -37,23 +37,24 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - improved for darker theme */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--gray-200);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--gray-400);
+  background: var(--gray-500);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--gray-500);
+  background: var(--gray-600);
 }
 
 /* Remove focus outlines and replace with custom styling */

@@ -96,9 +96,9 @@ export default function TaskManagement() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="bg-[var(--card-bg)] rounded-xl shadow-lg border border-[var(--border)] overflow-hidden"
+      className="bg-[var(--card-bg)] rounded-xl shadow-xl border border-[var(--border)] overflow-hidden"
     >
-      <div className="flex">
+      <div className="flex flex-col md:flex-row">
         <FolderNavigation 
           activeFolder={activeFolder} 
           onFolderChange={setActiveFolder}
@@ -106,21 +106,21 @@ export default function TaskManagement() {
           completedTasks={tasks.filter(task => task.completed).length}
         />
         
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 md:p-8">
           <motion.h2 
             key={activeFolder}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-xl font-medium mb-6"
+            className="text-xl font-medium mb-6 text-[var(--text-primary)]"
           >
             {activeFolder === 'active' ? 'Active Tasks' : 'Completed Tasks'}
           </motion.h2>
           
           {/* New Task Input - Only show in active tasks */}
           {activeFolder === 'active' && (
-            <form onSubmit={handleCreateTask} className="mb-6">
-              <div className="flex items-center border-b border-[var(--gray-300)] pb-2 group focus-within:border-[var(--accent)]">
-                <span className="mr-3 text-[var(--gray-500)]">
+            <form onSubmit={handleCreateTask} className="mb-8">
+              <div className="flex items-center border-b-2 border-[var(--gray-300)] pb-3 group focus-within:border-[var(--accent)] transition-colors">
+                <span className="mr-3 text-[var(--gray-500)] group-focus-within:text-[var(--accent)] transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
@@ -130,14 +130,14 @@ export default function TaskManagement() {
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
                   placeholder="Add a new task..."
-                  className="flex-1 bg-transparent border-none focus:outline-none text-[var(--text-primary)] placeholder-[var(--gray-500)]"
+                  className="flex-1 bg-transparent border-none focus:outline-none text-[var(--text-primary)] placeholder-[var(--gray-500)] text-base"
                 />
               </div>
             </form>
           )}
 
           {isLoading ? (
-            <div className="flex justify-center items-center h-32">
+            <div className="flex justify-center items-center h-40">
               <motion.div 
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}

@@ -19,10 +19,22 @@ export default function TaskList({
 
   if (tasks.length === 0) {
     return (
-      <div className="text-center py-10 text-[var(--text-secondary)]">
-        {tasks.some(task => task.completed) 
-          ? "No completed tasks yet."
-          : "No tasks yet. Add your first task above."}
+      <div className="text-center py-12 px-4">
+        <div className="bg-[var(--gray-200)] rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[var(--gray-500)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        </div>
+        <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">
+          {tasks.some(task => task.completed) 
+            ? "No completed tasks yet"
+            : "No tasks yet"}
+        </h3>
+        <p className="text-[var(--text-secondary)]">
+          {tasks.some(task => task.completed) 
+            ? "Complete tasks will appear here"
+            : "Add your first task above"}
+        </p>
       </div>
     );
   }
@@ -42,7 +54,7 @@ export default function TaskList({
 
   return (
     <motion.ul 
-      className="space-y-1"
+      className="space-y-2"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ staggerChildren: 0.05 }}
@@ -55,9 +67,11 @@ export default function TaskList({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, height: 0, marginBottom: 0 }}
             transition={{ duration: 0.2 }}
-            className={`task-item group px-3 py-3 rounded-lg ${
-              hoveredTaskId === task.id ? 'bg-[var(--card-hover)]' : ''
-            }`}
+            className={`task-item group px-4 py-3.5 rounded-lg border border-transparent ${
+              hoveredTaskId === task.id 
+                ? 'bg-[var(--card-hover)] border-[var(--gray-300)]' 
+                : 'hover:bg-[var(--card-hover)] hover:border-[var(--gray-300)]'
+            } transition-all duration-200`}
             onMouseEnter={() => setHoveredTaskId(task.id)}
             onMouseLeave={() => setHoveredTaskId(null)}
           >
@@ -81,7 +95,7 @@ export default function TaskList({
               
               <div className="flex-1 min-w-0" onClick={() => onSelectTask(task)}>
                 <div className="flex items-center">
-                  <h3 className={`text-base font-normal ${
+                  <h3 className={`text-base font-medium ${
                     task.completed ? 'line-through text-[var(--gray-500)]' : 'text-[var(--text-primary)]'
                   } cursor-pointer`}>
                     {task.title}
@@ -93,13 +107,13 @@ export default function TaskList({
                 </div>
                 
                 {task.description && (
-                  <p className="text-sm text-[var(--text-secondary)] mt-1 truncate cursor-pointer">
+                  <p className="text-sm text-[var(--text-secondary)] mt-1.5 truncate cursor-pointer">
                     {task.description}
                   </p>
                 )}
                 
                 {task.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
+                  <div className="flex flex-wrap gap-1.5 mt-2.5">
                     {task.tags.map((tag, index) => (
                       <span 
                         key={index} 
@@ -125,7 +139,7 @@ export default function TaskList({
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => onSelectTask(task)}
-                  className="text-[var(--gray-500)] hover:text-[var(--accent)] p-1 rounded-full hover:bg-[var(--gray-200)] transition-colors"
+                  className="text-[var(--gray-500)] hover:text-[var(--accent)] p-1.5 rounded-full hover:bg-[var(--gray-200)] transition-colors"
                   aria-label="Edit task"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -137,7 +151,7 @@ export default function TaskList({
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => onDeleteTask(task.id)}
-                  className="text-[var(--gray-500)] hover:text-[var(--danger)] p-1 rounded-full hover:bg-[var(--gray-200)] transition-colors"
+                  className="text-[var(--gray-500)] hover:text-[var(--danger)] p-1.5 rounded-full hover:bg-[var(--gray-200)] transition-colors"
                   aria-label="Delete task"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
