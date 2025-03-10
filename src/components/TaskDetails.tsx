@@ -185,7 +185,7 @@ export default function TaskDetails({ task, onClose, onUpdate, onDelete }: TaskD
                   <button
                     type="button"
                     onClick={handleDateButtonClick}
-                    className="date-picker-button"
+                    className="date-picker-button group"
                   >
                     <span className={dueDate ? 'date-text' : 'placeholder'}>
                       {dueDate ? formatDisplayDate(dueDate) : 'Select date'}
@@ -195,14 +195,14 @@ export default function TaskDetails({ task, onClose, onUpdate, onDelete }: TaskD
                         <button
                           type="button"
                           onClick={handleClearDate}
-                          className="mr-1 text-[var(--gray-500)] hover:text-[var(--danger)]"
+                          className="mr-1 text-[var(--gray-500)] hover:text-[var(--danger)] transition-colors"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         </button>
                       )}
-                      <svg xmlns="http://www.w3.org/2000/svg" className="calendar-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="calendar-icon group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     </div>

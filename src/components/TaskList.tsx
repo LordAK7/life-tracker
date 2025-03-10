@@ -1,21 +1,39 @@
 import { Task } from '@/types/task';
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence, Reorder } from 'framer-motion';
 
 interface TaskListProps {
   tasks: Task[];
   onToggleCompletion: (id: string, completed: boolean) => void;
   onSelectTask: (task: Task) => void;
   onDeleteTask: (id: string) => void;
+  onReorder?: (reorderedTasks: Task[]) => void;
 }
 
 export default function TaskList({ 
   tasks, 
   onToggleCompletion, 
   onSelectTask,
-  onDeleteTask
+  onDeleteTask,
+  onReorder
 }: TaskListProps) {
   const [hoveredTaskId, setHoveredTaskId] = useState<string | null>(null);
+  const [orderedTasks, setOrderedTasks] = useState<Task[]>(tasks);
+
+  // Update ordered tasks when tasks prop changes
+  useEffect(() => {
+    if (JSON.stringify(tasks.map(t => t.id)) !== JSON.stringify(orderedTasks.map(t => t.id))) {
+      setOrderedTasks(tasks);
+    }
+  }, [tasks]);
+
+  // Handle reordering
+  const handleReorder = (newOrder: Task[]) => {
+    setOrderedTasks(newOrder);
+    if (onReorder) {
+      onReorder(newOrder);
+    }
+  };
 
   if (tasks.length === 0) {
     return (
@@ -53,16 +71,17 @@ export default function TaskList({
   };
 
   return (
-    <motion.ul 
+    <Reorder.Group 
+      axis="y" 
+      values={orderedTasks} 
+      onReorder={handleReorder}
       className="space-y-2"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ staggerChildren: 0.05 }}
     >
       <AnimatePresence>
-        {tasks.map((task) => (
-          <motion.li 
+        {orderedTasks.map((task) => (
+          <Reorder.Item
             key={task.id}
+            value={task}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, height: 0, marginBottom: 0 }}
@@ -71,9 +90,10 @@ export default function TaskList({
               hoveredTaskId === task.id 
                 ? 'bg-[var(--card-hover)] border-[var(--gray-300)]' 
                 : 'hover:bg-[var(--card-hover)] hover:border-[var(--gray-300)]'
-            } transition-all duration-200`}
+            } transition-all duration-200 cursor-grab active:cursor-grabbing`}
             onMouseEnter={() => setHoveredTaskId(task.id)}
             onMouseLeave={() => setHoveredTaskId(null)}
+            dragListener={!task.completed} // Only allow dragging for incomplete tasks
           >
             <div className="flex items-start">
               <motion.button
@@ -160,9 +180,9 @@ export default function TaskList({
                 </motion.button>
               </motion.div>
             </div>
-          </motion.li>
+          </Reorder.Item>
         ))}
       </AnimatePresence>
-    </motion.ul>
+    </Reorder.Group>
   );
 } 

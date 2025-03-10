@@ -80,33 +80,35 @@ export default function NavigationBar() {
   ];
 
   return (
-    <div className="bg-[var(--card-bg)] rounded-xl shadow-sm border border-[var(--border)] p-2 mb-8">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2 px-3">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[var(--accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-          </svg>
-          <span className="text-lg font-medium text-[var(--text-primary)] hidden sm:inline">Life Tracker</span>
+    <div className="bg-[var(--card-bg)] rounded-xl shadow-md border border-[var(--border)] mb-6 backdrop-blur-sm bg-opacity-80 sticky top-4 z-10">
+      <div className="flex items-center justify-between px-3 py-2">
+        <div className="flex items-center space-x-2">
+          <div className="bg-gradient-to-br from-[var(--accent)] to-[var(--accent-hover)] p-1.5 rounded-lg shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+          </div>
+          <span className="text-base font-medium text-[var(--text-primary)] hidden sm:inline bg-clip-text text-transparent bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)]">Life Tracker</span>
         </div>
         
-        <nav className="flex items-center">
+        <nav className="flex items-center bg-[var(--gray-100)] rounded-lg p-1 shadow-inner">
           {navItems.map((item) => (
             <Link 
               key={item.id}
               href={item.href}
-              className="relative px-3 py-2 rounded-lg group"
+              className="relative px-2 py-1.5 rounded-md group"
             >
               <div className="flex flex-col items-center justify-center">
                 <div className="relative">
                   {activeTab === item.id && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute inset-0 bg-[var(--accent-light)] rounded-lg -z-10"
+                      className="absolute inset-0 bg-[var(--card-bg)] rounded-md shadow-sm -z-10"
                       initial={false}
-                      transition={{ type: "spring", duration: 0.5 }}
+                      transition={{ type: "spring", duration: 0.4 }}
                     />
                   )}
-                  <div className={`p-2 rounded-lg transition-colors ${
+                  <div className={`p-1.5 rounded-md transition-all ${
                     activeTab === item.id 
                       ? 'text-[var(--accent)]' 
                       : 'text-[var(--gray-500)] group-hover:text-[var(--text-primary)]'
@@ -114,11 +116,11 @@ export default function NavigationBar() {
                     {item.icon}
                   </div>
                 </div>
-                <span className={`text-xs mt-1 transition-colors ${
+                <span className={`text-[10px] mt-0.5 transition-all font-medium ${
                   activeTab === item.id 
                     ? 'text-[var(--accent)]' 
                     : 'text-[var(--gray-500)] group-hover:text-[var(--text-primary)]'
-                }`}>
+                } hidden sm:block`}>
                   {item.label}
                 </span>
               </div>
@@ -126,14 +128,14 @@ export default function NavigationBar() {
           ))}
         </nav>
         
-        <div className="flex items-center space-x-2 px-3">
-          <button className="p-2 rounded-full bg-[var(--gray-200)] text-[var(--gray-600)] hover:bg-[var(--gray-300)] transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="flex items-center space-x-2">
+          <button className="p-1.5 rounded-md bg-[var(--gray-200)] text-[var(--gray-600)] hover:bg-[var(--gray-300)] hover:text-[var(--accent)] transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </button>
-          <div className="w-8 h-8 rounded-full bg-[var(--accent)] flex items-center justify-center text-white font-medium text-sm">
+          <div className="w-7 h-7 rounded-md bg-gradient-to-br from-[var(--accent)] to-[var(--accent-hover)] flex items-center justify-center text-white font-medium text-xs shadow-sm">
             A
           </div>
         </div>
